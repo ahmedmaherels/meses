@@ -1,0 +1,14 @@
+# Screen stocks
+def ScreenStocks(trader_api):
+  assets = trader_api.list_assets(status='active', asset_class='us_equity')
+  assets = [x for x in assets if x.shortable == True and x.exchange == 'NASDAQ']
+  stocks = [x.symbol for x in assets][:SCREENER_NASDAQ_COUNT]
+
+  screened = []
+  for st in stocks:
+    _stock = CheckStock(st)
+    if _stock != {}:
+      screened.append(_stock)
+
+  screened = [x for x in screened if abs(x['stop_loss'] - x['take_profit']) > min(x['stop_loss'], x['take_profit']) * TAKE_PROFIT_DELTA]
+  return screened
